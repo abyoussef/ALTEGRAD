@@ -60,6 +60,7 @@ acs-*.bib
 # fixme
 *.lox
 
+*/.DS_Store
 #(r)(e)ledmac/(r)(e)ledpar
 *.end
 *.?end
