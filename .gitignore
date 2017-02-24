@@ -28,11 +28,15 @@
 *.brf
 *.run.xml
 
+## Data files not uploaded 
 Data/*.txt
 Data/*.csv
 
-
+## For jupyter Notebook checkpoints 
 *checkpoint* 
+## Mac DS_Store 
+*/.DS_Store
+
 ## Build tool auxiliary files:
 *.fdb_latexmk
 *.synctex
@@ -62,7 +66,7 @@ acs-*.bib
 # fixme
 *.lox
 
-*/.DS_Store
+
 #(r)(e)ledmac/(r)(e)ledpar
 *.end
 *.?end
