@@ -3,7 +3,7 @@ import operator
 import pandas as pd
 from collections import Counter
 
-path_to_data = ''
+path_to_data = 'Data/'
 
 ##########################
 # load some of the files #                           
