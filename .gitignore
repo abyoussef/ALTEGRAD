@@ -31,6 +31,8 @@
 Data/*.txt
 Data/*.csv
 
+
+*checkpoint* 
 ## Build tool auxiliary files:
 *.fdb_latexmk
 *.synctex
