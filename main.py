@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from helpers.misc import train_test_split, score, make_X_y, write_to_file
 from methods.baseline import baseline
+from methods.tfidf_centroid import tfidf_centroid
 
 def test(method):
     path_to_data = 'Data/'
@@ -33,5 +34,5 @@ def submission(method):
     write_to_file(y_pred, os.path.join(path_to_data, method.__name__ + '.csv'))
 
 if __name__ == '__main__':
-    test(baseline)
-    #submission(baseline)
+    test(tfidf_centroid)
+    #submission(tfidf_centroid)

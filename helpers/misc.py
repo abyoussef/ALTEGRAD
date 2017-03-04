@@ -42,9 +42,11 @@ def make_X_y(data, info):
 
 def score(y_true, y_pred, k=10):
     """Return MAP@10 score for true and predicted recipients. """
-    y_true = y_true['recipients'].apply(lambda x: x.split(' ')).tolist()
-    y_pred = y_pred['recipients'].apply(lambda x: x.split(' ')).tolist()
-    return mapk(y_true, y_pred, k)
+    y_true_sorted = y_true.sort_values('mid')
+    y_pred_sorted = y_pred.sort_values('mid')
+    y_true_sorted = y_true_sorted['recipients'].apply(lambda x: x.split(' ')).tolist()
+    y_pred_sorted = y_pred_sorted['recipients'].apply(lambda x: x.split(' ')).tolist()
+    return mapk(y_true_sorted, y_pred_sorted, k)
 
 def write_to_file(y_pred, filename):
     """Write predicted recipients to file."""
