@@ -1,7 +1,7 @@
 from __future__ import print_function
 import os
 import pandas as pd
-from misc import train_test_split, score, make_X_y, write_to_file
+from helpers.misc import train_test_split, score, make_X_y, write_to_file
 from methods.baseline import baseline
 
 def test(method):
@@ -35,10 +35,3 @@ def submission(method):
 if __name__ == '__main__':
     test(baseline)
     #submission(baseline)
-    #y_baseline = pd.read_csv('Data/baseline.csv', sep = ',', header = 0)
-    #y_freq = pd.read_csv('Data/predictions_frequency.txt', sep = ',', header = 0)
-    #y_baseline = y_baseline.sort_values('mid').reset_index(drop = True)
-    #y_freq = y_freq.sort_values('mid').reset_index(drop = True)
-
-    #b = y_baseline['recipients'].apply(lambda x: set(x.split(' ')))
-    #f = y_freq['recipients'].apply(lambda x: set(x.split(' ')))

@@ -1,5 +1,7 @@
 import pandas as pd
-from misc import split_cell
+
+from helpers.misc import split_cell
+
 
 def baseline(X_train, y_train, X_test):
     X_train = X_train[['sender', 'mid']]
