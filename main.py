@@ -13,7 +13,6 @@ def test(method, cv = None):
 
     info = pd.read_csv(os.path.join(path_to_data + 'training_info.csv'), sep=',', header=0)
 
-
     train_test = train_test_split(data, info, test_size = 0.1, random_state = None, cv = cv)
 
     scores = np.empty(cv)
