@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 from pandas import Series, DataFrame
 from scipy.sparse import csr_matrix, vstack
-from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
-from helpers.misc import split_cell
+from helpers.misc import split_cell, clean_text_simple
 from methods.baseline import freq
 
 def rerank(X_train, y_train, X_test, y_pred):
@@ -24,6 +24,11 @@ def rerank(X_train, y_train, X_test, y_pred):
     y_pred = pd.merge(left = X_test, right = tmp, on = 'sender', how = 'inner')[['mid', 'recipients']]
     return y_pred
 
+def clean(X, col = 'body'):
+    X_cleaned = X.copy()
+    X_cleaned[col] = X_cleaned[col].apply(clean_text_simple)
+    return X_cleaned
+
 def tfidf_centroid(X_train, y_train, X_test):
     # Data frame containing mid and recipients
     mid_rec = split_cell(y_train, 'mid', 'recipients', str)
@@ -31,6 +36,8 @@ def tfidf_centroid(X_train, y_train, X_test):
     snd_mid_rec = pd.merge(left = X_train[['sender', 'mid']], right = mid_rec, on = 'mid', how = 'inner')
     # Data frame for final prediction
     y_pred = DataFrame()
+    X_train = clean(X_train)
+    X_test = clean(X_test)
     for sender, emails in X_train.groupby('sender'):
         # Loop over sender
         # For current sender, compute the TF-IDF matrix

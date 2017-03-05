@@ -45,5 +45,5 @@ def submission(method):
     write_to_file(y_pred, os.path.join(path_to_data, method.__name__ + '.csv'))
 
 if __name__ == '__main__':
-    #test(tfidf_centroid)
+    #test(tfidf_centroid, cv = 3)
     submission(tfidf_centroid)
