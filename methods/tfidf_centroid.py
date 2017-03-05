@@ -6,6 +6,23 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from helpers.misc import split_cell
+from methods.baseline import freq
+
+def rerank(X_train, y_train, X_test, y_pred):
+    counts = freq(X_train, y_train)
+
+    snd_mid_rec = pd.merge(left = X_test[['sender', 'mid']], right = y_pred, on = 'mid', how = 'inner')
+    snd_rec = split_cell(snd_mid_rec[['sender', 'recipients']], 'sender', 'recipients', str)
+    y_pred = pd.merge(left = snd_rec, right = counts, on = ['sender', 'recipients'], how = 'left')
+
+    y_pred.set_index(['sender', 'recipients'], inplace = True)
+    y_pred = y_pred['counts']
+    g = y_pred.groupby(level=0, group_keys=False)
+    tmp = g.nlargest(10)
+    tmp = tmp.reset_index().drop('counts', axis = 1)
+    tmp = tmp.groupby('sender')['recipients'].apply(lambda x: ' '.join(x)).reset_index()
+    y_pred = pd.merge(left = X_test, right = tmp, on = 'sender', how = 'inner')[['mid', 'recipients']]
+    return y_pred
 
 def tfidf_centroid(X_train, y_train, X_test):
     # Data frame containing mid and recipients
@@ -62,4 +79,5 @@ def tfidf_centroid(X_train, y_train, X_test):
 
         # Add to final prediction
         y_pred = pd.concat([y_pred, df])
+    #y_pred = rerank(X_train, y_train, X_test, y_pred)
     return y_pred
