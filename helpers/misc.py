@@ -89,13 +89,16 @@ def write_to_file(y_pred, filename):
 def clean_text_simple(text, remove_stopwords=True, pos_filtering=True, stemming=True):
 
     original_text = text
-    punct = set(string.punctuation.replace('-', ''))
+    punct = string.punctuation.replace('-', '')
     # convert to lower case
     text = text.lower()
     # remove punctuation (preserving intra-word dashes)
-    text = ''.join(l for l in text if l not in punct)
+    cond = '[' + re.escape(punct) + ']+'
+    text = re.sub(cond, ' ', text)
+    text = re.sub('(\s+-|-\s+)', ' ', text)
     # strip extra white space
-    text = re.sub(' +', ' ', text)
+    text = re.sub('\s+', ' ', text)
+    text = re.sub('-{2,}', ' ', text)
     # strip leading and trailing white space
     text = text.strip()
     # tokenize (split based on whitespace)
@@ -132,8 +135,7 @@ def clean_text_simple(text, remove_stopwords=True, pos_filtering=True, stemming=
         for token in tokens:
             tokens_stemmed.append(stemmer.stem(token))
         tokens = tokens_stemmed
-    return ' '.join(tokens)
-
+    return tokens
 
 def terms_to_graph(terms, w):
     # This function returns a directed, weighted igraph from a list of terms (the tokens from the pre-processed text) e.g., ['quick','brown','fox']
@@ -219,27 +221,28 @@ def unweighted_k_core(g):
 
     return cores_g
 
+def clean(X, col = 'body', cleaner = clean_text_simple, join = True):
+    X_cleaned = X.copy()
+    X_cleaned[col] = X_cleaned[col].apply(cleaner)
+    if join:
+        X_cleaned[col] = X_cleaned[col].apply(lambda x: ' '.join(x))
+    return X_cleaned
 
-def accuracy_metrics(candidate, truth):
-    # true positives ('hits') are both in candidate and in truth
-    tp = len(set(candidate).intersection(truth))
+def compute_node_centrality(graph):
+    # degree
+    degrees = graph.degree()
+    degrees = [round(float(degree)/(len(graph.vs)-1),5) for degree in degrees]
 
-    # false positives ('false alarms') are in candidate but not in truth
-    fp = len([element for element in candidate if element not in truth])
+    # weighted degree
+    w_degrees = graph.strength(weights=graph.es["weight"])
+    w_degrees = [round(float(degree)/(len(graph.vs)-1),5) for degree in w_degrees]
 
-    # false negatives ('misses') are in truth but not in candidate
-    fn = len([element for element in truth if element not in candidate])
+    # closeness
+    closeness = graph.closeness(normalized=True)
+    closeness = [round(value,5) for value in closeness]
 
-    # precision
-    prec = round(float(tp) / (tp + fp), 5)
+    # weighted closeness
+    w_closeness = graph.closeness(normalized=True, weights=graph.es["weight"])
+    w_closeness = [round(value,5) for value in w_closeness]
 
-    # recall
-    rec = round(float(tp) / (tp + fn), 5)
-
-    if prec + rec != 0:
-        # F1 score
-        f1 = round(2 * float(prec * rec) / (prec + rec), 5)
-    else:
-        f1 = 0
-
-    return (prec, rec, f1)
+    return(zip(graph.vs["name"],degrees,w_degrees,closeness,w_closeness))

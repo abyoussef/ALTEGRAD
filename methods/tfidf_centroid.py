@@ -5,8 +5,9 @@ from scipy.sparse import csr_matrix, vstack
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from helpers.misc import split_cell, clean_text_simple
+from helpers.misc import split_cell, clean
 from methods.baseline import freq
+
 
 def rerank(X_train, y_train, X_test, y_pred):
     counts = freq(X_train, y_train)
@@ -24,11 +25,6 @@ def rerank(X_train, y_train, X_test, y_pred):
     y_pred = pd.merge(left = X_test, right = tmp, on = 'sender', how = 'inner')[['mid', 'recipients']]
     return y_pred
 
-def clean(X, col = 'body'):
-    X_cleaned = X.copy()
-    X_cleaned[col] = X_cleaned[col].apply(clean_text_simple)
-    return X_cleaned
-
 def tfidf_centroid(X_train, y_train, X_test):
     # Data frame containing mid and recipients
     mid_rec = split_cell(y_train, 'mid', 'recipients', str)
@@ -36,9 +32,11 @@ def tfidf_centroid(X_train, y_train, X_test):
     snd_mid_rec = pd.merge(left = X_train[['sender', 'mid']], right = mid_rec, on = 'mid', how = 'inner')
     # Data frame for final prediction
     y_pred = DataFrame()
-    X_train = clean(X_train)
-    X_test = clean(X_test)
-    for sender, emails in X_train.groupby('sender'):
+    X_train_cleaned = clean(X_train)
+    X_train_cleaned = X_train_cleaned[X_train_cleaned['body'].apply(len) >= 4].reset_index(drop = True)
+    X_test_cleaned = clean(X_test)
+    X_test_cleaned = X_test_cleaned[X_test_cleaned['body'].apply(len) >= 4].reset_index(drop = True)
+    for sender, emails in X_train_cleaned.groupby('sender'):
         # Loop over sender
         # For current sender, compute the TF-IDF matrix
         clf = TfidfVectorizer(stop_words='english')
@@ -66,7 +64,7 @@ def tfidf_centroid(X_train, y_train, X_test):
         tfidf = vstack(df['tfidf'].values)
 
         # Emails in test set
-        emails_test = X_test[X_test['sender'] == sender]
+        emails_test = X_test_cleaned[X_test_cleaned['sender'] == sender]
 
         # TF-IDF matrix of test email using the same transformation as training
         tfidf_test = clf.transform(emails_test['body'])
@@ -86,5 +84,6 @@ def tfidf_centroid(X_train, y_train, X_test):
 
         # Add to final prediction
         y_pred = pd.concat([y_pred, df])
-    #y_pred = rerank(X_train, y_train, X_test, y_pred)
+    y_pred = pd.merge(left = X_test, right = y_pred, on = 'mid', how = 'left')[['mid', 'recipients']]
+    y_pred['recipients'].fillna('', inplace = True)
     return y_pred
