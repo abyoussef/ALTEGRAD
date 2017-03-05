@@ -27,7 +27,6 @@ def tfidf_centroid(X_train, y_train, X_test):
         df = DataFrame()
         df['mid'] = emails['mid'].reset_index(drop=True)
         df['tfidf'] = Series([tfidf[i] for i in xrange(tfidf.shape[0])])
-        df['tfidf'] /= (df['tfidf'].apply(lambda x: x.sum()) + 1e-15)
 
         # Sum the TF-IDF vector for a given recipients
         # As a result, for each sender-recipient pair, we have a TF-IDF vector
@@ -52,7 +51,7 @@ def tfidf_centroid(X_train, y_train, X_test):
         sim = cosine_similarity(tfidf_test, tfidf)
 
         # Get the top 10 recipients by cosine simulatiry
-        top10 = np.argsort(sim, axis = 1)[::-1][:, :10]
+        top10 = np.fliplr(np.argsort(sim, axis = 1))[:, :10]
         top10 = recs[top10]
         top10 = map(lambda x: ' '.join(x), top10)
 
