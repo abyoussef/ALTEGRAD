@@ -1,22 +1,34 @@
 from __future__ import print_function
 import os
+import numpy as np
 import pandas as pd
 from helpers.misc import train_test_split, score, make_X_y, write_to_file
 from methods.baseline import baseline
 from methods.tfidf_centroid import tfidf_centroid
 
-def test(method):
+def test(method, cv = None):
     path_to_data = 'Data/'
 
     data = pd.read_csv(os.path.join(path_to_data + 'training_set.csv'), sep=',', header=0)
 
     info = pd.read_csv(os.path.join(path_to_data + 'training_info.csv'), sep=',', header=0)
 
-    X_train, y_train, X_test, y_test = train_test_split(data, info, test_size = 0.1, random_state = 0)
 
-    y_pred = method(X_train, y_train, X_test)
+    train_test = train_test_split(data, info, test_size = 0.1, random_state = None, cv = cv)
 
-    print('[INFO] Test score:', score(y_test, y_pred))
+    scores = np.empty(cv)
+
+    if cv is None:
+        cv = 1
+
+    for i in xrange(cv):
+        print('[INFO] Cross-validating fold %d/%d'%(i+1, cv))
+        X_train, y_train, X_test, y_test = train_test[i]
+        y_pred = method(X_train, y_train, X_test)
+        scores[i] = score(y_test, y_pred)
+        print('[INFO] Test score: %f' % scores[i])
+
+    print('[INFO] Final test score:', np.mean(scores))
 
 def submission(method):
     path_to_data = 'Data/'
@@ -34,5 +46,5 @@ def submission(method):
     write_to_file(y_pred, os.path.join(path_to_data, method.__name__ + '.csv'))
 
 if __name__ == '__main__':
-    #test(tfidf_centroid)
-    submission(tfidf_centroid)
+    test(tfidf_centroid)
+    #submission(tfidf_centroid)

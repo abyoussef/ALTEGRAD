@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import pandas as pd
 from pandas import Series, DataFrame
+from sklearn.model_selection import ShuffleSplit
 from sklearn.model_selection import train_test_split as sk_train_test_split
 from average_precision import mapk
 
@@ -14,18 +15,40 @@ def split_cell(df, col1, col2, dtype = int):
 
 def train_test_split(data, info, **args):
     """Split data and info into training set and test set."""
-    train = data.drop('mids', axis = 1)
-    test = data.drop('mids', axis = 1)
+    cv = args.get('cv', None)
+    if cv is None:
+        cv = 1
+    random_state = args.get('random_state', None)
+    if cv > 1:
+        rs = ShuffleSplit(n_splits = cv, test_size = 1.0/cv, random_state = random_state)
+    else:
+        rs = ShuffleSplit(n_splits = 1, test_size = 0.1, random_state = random_state)
+    indices = data['mids'].apply(lambda x: list(rs.split(x.split(' '))))
+    train_test = []
+    for i in xrange(cv):
+        train = data.copy()
+        test = data.copy()
+        train['mids'] = train['mids'].apply(lambda x: x.split(' '))
+        test['mids'] = test['mids'].apply(lambda x: x.split(' '))
 
-    tmp = data['mids'].apply(lambda x: sk_train_test_split(x.split(' '), **args))
+        train['indices'] = indices.apply(lambda x: x[i][0])
+        test['indices'] = indices.apply(lambda x: x[i][1])
 
-    train['mids'] = tmp.apply(lambda x: ' '.join(x[0]))
-    test['mids'] = tmp.apply(lambda x: ' '.join(x[1]))
+        train['tmp'] = train.apply(lambda x: map(lambda y: x['mids'][y], x['indices']), axis = 1)
+        test['tmp'] = test.apply(lambda x: map(lambda y: x['mids'][y], x['indices']), axis = 1)
 
-    X_train, y_train = make_X_y(train, info)
-    X_test, y_test = make_X_y(test, info)
+        train.drop(['mids', 'indices'], axis = 1, inplace = True)
+        test.drop(['mids', 'indices'], axis = 1, inplace = True)
 
-    return X_train, y_train, X_test, y_test
+        train.rename(columns={'tmp': 'mids'}, inplace = True)
+        test.rename(columns={'tmp': 'mids'}, inplace = True)
+
+        train['mids'] = train['mids'].apply(lambda x: ' '.join(x))
+        test['mids'] = test['mids'].apply(lambda x: ' '.join(x))
+        X_train, y_train = make_X_y(train, info)
+        X_test, y_test = make_X_y(test, info)
+        train_test.append((X_train, y_train, X_test, y_test))
+    return train_test
 
 def make_X_y(data, info):
     data = split_cell(data, 'sender', 'mids')
