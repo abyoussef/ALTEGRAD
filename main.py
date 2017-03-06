@@ -5,8 +5,10 @@ import pandas as pd
 from helpers.misc import train_test_split, score, make_X_y, write_to_file, clean
 from methods.baseline import baseline
 from methods.tfidf_centroid import tfidf_centroid
+from methods.twidf_plus_frequency import twidf_plus_frequency
 from methods.tfidf import tfidf
 from methods.baseline_tfidf import baseline_tfidf
+
 
 def test(method, cv = None):
     path_to_data = 'Data/'
@@ -52,5 +54,5 @@ def submission(method):
     write_to_file(y_pred, os.path.join(path_to_data, method.__name__ + '.csv'))
 
 if __name__ == '__main__':
-    #test(tfidf, cv = 5)
-    submission(tfidf_centroid)
+    test(twidf_plus_frequency, cv = 5)
+    #submission(tfidf_centroid)
