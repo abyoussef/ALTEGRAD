@@ -5,6 +5,7 @@ import pandas as pd
 from helpers.misc import train_test_split, score, make_X_y, write_to_file
 from methods.baseline import baseline
 from methods.tfidf_centroid import tfidf_centroid
+from methods.twidf_centroid import twidf_centroid
 
 def test(method, cv = None):
     path_to_data = 'Data/'
@@ -46,4 +47,4 @@ def submission(method):
 
 if __name__ == '__main__':
     #test(tfidf_centroid, cv = 3)
-    submission(tfidf_centroid)
+    submission(twidf_centroid)
