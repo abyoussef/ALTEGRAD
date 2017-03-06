@@ -5,7 +5,7 @@ from scipy.sparse import csr_matrix, vstack
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from helpers.misc import split_cell, clean
+from helpers.misc import split_cell
 from methods.baseline import freq
 
 
@@ -31,9 +31,7 @@ def tfidf_centroid_score(X_train, y_train, X_test):
     snd_mid_rec = pd.merge(left = X_train[['sender', 'mid']], right = mid_rec, on = 'mid', how = 'inner')
     # Data frame for final prediction
     scores = DataFrame()
-    X_train_cleaned = clean(X_train)
-    X_test_cleaned = clean(X_test)
-    for sender, emails in X_train_cleaned.groupby('sender'):
+    for sender, emails in X_train.groupby('sender'):
         # Loop over sender
         # For current sender, compute the TF-IDF matrix
         clf = TfidfVectorizer(stop_words='english')
@@ -61,7 +59,7 @@ def tfidf_centroid_score(X_train, y_train, X_test):
         tfidf = vstack(df['tfidf'].values)
 
         # Emails in test set
-        emails_test = X_test_cleaned[X_test_cleaned['sender'] == sender]
+        emails_test = X_test[X_test['sender'] == sender]
 
         # TF-IDF matrix of test email using the same transformation as training
         tfidf_test = clf.transform(emails_test['body'])
@@ -76,6 +74,8 @@ def tfidf_centroid_score(X_train, y_train, X_test):
     return scores
 
 def tfidf_centroid(X_train, y_train, X_test):
+    X_train = clean(X_train)
+    X_test = clean(X_test)
     scores = tfidf_centroid_score(X_train, y_train, X_test)
     scores.set_index(['mid', 'recipients'], inplace = True)
     scores = scores['score']

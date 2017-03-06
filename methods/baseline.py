@@ -1,9 +1,8 @@
 import pandas as pd
 from pandas import Series, DataFrame
 
-from helpers.misc import split_cell
+from helpers.misc import split_cell, top_k_score
 
-#TODO: extract a ``score'' function
 def freq(X_train, y_train):
     X_train = X_train[['sender', 'mid']]
     y_train = split_cell(y_train, 'mid', 'recipients', dtype = str)
@@ -11,13 +10,13 @@ def freq(X_train, y_train):
     counts = train.groupby(['sender', 'recipients'])['mid'].count()
     return counts.reset_index(name = 'counts')
 
-def baseline(X_train, y_train, X_test):
+def baseline_score(X_train, y_train, X_test):
     counts = freq(X_train, y_train)
-    counts.set_index(['sender', 'recipients'], inplace = True)
-    counts = counts['counts']
-    g = counts.groupby(level=0, group_keys=False)
-    tmp = g.nlargest(10)
-    tmp = tmp.reset_index().drop('counts', axis = 1)
-    tmp = tmp.groupby('sender')['recipients'].apply(lambda x: ' '.join(x)).reset_index()
-    y_pred = pd.merge(left = X_test, right = tmp, on = 'sender', how = 'inner')[['mid', 'recipients']]
+    counts.rename(columns = {'counts':'score'}, inplace = True)
+    scores = pd.merge(left = X_test, right = counts, on = 'sender')[['mid', 'recipients', 'score']]
+    return scores
+
+def baseline(X_train, y_train, X_test):
+    scores = baseline_score(X_train, y_train, X_test)
+    y_pred = top_k_score(scores)
     return y_pred
