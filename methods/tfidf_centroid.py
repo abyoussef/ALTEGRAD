@@ -5,7 +5,7 @@ from scipy.sparse import csr_matrix, vstack
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from helpers.misc import split_cell
+from helpers.misc import split_cell, clean
 from methods.baseline import freq
 
 

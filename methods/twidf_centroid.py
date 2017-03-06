@@ -17,6 +17,7 @@ def remove_empty_graphs(df, col = 'body', w = 4):
     df[col] = df[col].apply(lambda x: ' '.join(x))
     return df
 
+#TODO: refactor the function
 def twidf_centroid(X_train, y_train, X_test):
     # Data frame containing mid and recipients
     mid_rec = split_cell(y_train, 'mid', 'recipients', str)

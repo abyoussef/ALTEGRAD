@@ -5,7 +5,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from helpers.misc import split_cell, top_k_score
 
-
 def tfidf_score(X_train, y_train, X_test):
     # Data frame containing mid and recipients
     mid_rec = split_cell(y_train, 'mid', 'recipients', str)
