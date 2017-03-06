@@ -24,18 +24,15 @@ def rerank(X_train, y_train, X_test, y_pred):
     tmp = tmp.groupby('sender')['recipients'].apply(lambda x: ' '.join(x)).reset_index()
     y_pred = pd.merge(left = X_test, right = tmp, on = 'sender', how = 'inner')[['mid', 'recipients']]
     return y_pred
-
-def tfidf_centroid(X_train, y_train, X_test):
+def tfidf_centroid_score(X_train, y_train, X_test):
     # Data frame containing mid and recipients
     mid_rec = split_cell(y_train, 'mid', 'recipients', str)
     # Data frame containing sender, mid and recipients
     snd_mid_rec = pd.merge(left = X_train[['sender', 'mid']], right = mid_rec, on = 'mid', how = 'inner')
     # Data frame for final prediction
-    y_pred = DataFrame()
+    scores = DataFrame()
     X_train_cleaned = clean(X_train)
-    X_train_cleaned = X_train_cleaned[X_train_cleaned['body'].apply(len) >= 4].reset_index(drop = True)
     X_test_cleaned = clean(X_test)
-    X_test_cleaned = X_test_cleaned[X_test_cleaned['body'].apply(len) >= 4].reset_index(drop = True)
     for sender, emails in X_train_cleaned.groupby('sender'):
         # Loop over sender
         # For current sender, compute the TF-IDF matrix
@@ -72,18 +69,18 @@ def tfidf_centroid(X_train, y_train, X_test):
         # Calculate the simularity
         sim = cosine_similarity(tfidf_test, tfidf)
 
-        # Get the top 10 recipients by cosine simulatiry
-        top10 = np.fliplr(np.argsort(sim, axis = 1))[:, :10]
-        top10 = recs[top10]
-        top10 = map(lambda x: ' '.join(x), top10)
+        df = DataFrame(sim, columns = recs, index = emails_test.mid)
+        df = df.stack().reset_index()
+        df.columns = ['mid', 'recipients', 'score']
+        scores = pd.concat([scores, df]).reset_index(drop = True)
+    return scores
 
-        # Prediction for current sender
-        df = DataFrame()
-        df['mid'] = emails_test['mid']
-        df['recipients'] = Series(top10, index = emails_test.index)
-
-        # Add to final prediction
-        y_pred = pd.concat([y_pred, df])
-    y_pred = pd.merge(left = X_test, right = y_pred, on = 'mid', how = 'left')[['mid', 'recipients']]
-    y_pred['recipients'].fillna('', inplace = True)
+def tfidf_centroid(X_train, y_train, X_test):
+    scores = tfidf_centroid_score(X_train, y_train, X_test)
+    scores.set_index(['mid', 'recipients'], inplace = True)
+    scores = scores['score']
+    g = scores.groupby(level=0, group_keys=False)
+    y_pred = g.nlargest(10)
+    y_pred = y_pred.reset_index().drop('score', axis = 1)
+    y_pred = y_pred.groupby('mid')['recipients'].apply(lambda x: ' '.join(x)).reset_index()
     return y_pred

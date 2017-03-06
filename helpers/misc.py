@@ -97,21 +97,21 @@ def clean_text_simple(text, remove_stopwords=True, pos_filtering=True, stemming=
     text = re.sub(cond, ' ', text)
     text = re.sub('(\s+-|-\s+)', ' ', text)
     # strip extra white space
-    text = re.sub('\s+', ' ', text)
     text = re.sub('-{2,}', ' ', text)
+    text = re.sub('\s+', ' ', text)
     # strip leading and trailing white space
     text = text.strip()
     # tokenize (split based on whitespace)
     tokens = text.split(' ')
-    if pos_filtering == True:
+    tokens = filter(lambda x: len(x) > 0, tokens)
+    if pos_filtering == True and len(tokens) > 0:
         # apply POS-tagging
-        try:
-            tagged_tokens = pos_tag(tokens)
-            # retain only nouns and adjectives
-            tokens_keep = []
-            for i in range(len(tagged_tokens)):
-                item = tagged_tokens[i]
-                if (
+        tagged_tokens = pos_tag(tokens)
+        # retain only nouns and adjectives
+        tokens_keep = []
+        for i in range(len(tagged_tokens)):
+            item = tagged_tokens[i]
+            if (
                 item[1] == 'NN' or
                 item[1] == 'NNS' or
                 item[1] == 'NNP' or
@@ -121,9 +121,7 @@ def clean_text_simple(text, remove_stopwords=True, pos_filtering=True, stemming=
                 item[1] == 'JJR'
                 ):
                     tokens_keep.append(item[0])
-            tokens = tokens_keep
-        except:
-            tokens = ['']
+        tokens = tokens_keep
     if remove_stopwords:
         stpwds = set(stopwords.words('english'))
         # remove stopwords

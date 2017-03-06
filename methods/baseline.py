@@ -3,6 +3,7 @@ from pandas import Series, DataFrame
 
 from helpers.misc import split_cell
 
+#TODO: extract a ``score'' function
 def freq(X_train, y_train):
     X_train = X_train[['sender', 'mid']]
     y_train = split_cell(y_train, 'mid', 'recipients', dtype = str)
