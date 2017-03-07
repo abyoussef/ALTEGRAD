@@ -21,7 +21,11 @@ def test(method, cv = None):
     info = pd.read_csv(os.path.join(path_to_data + 'training_info.csv'), sep=',', header=0)
 
     print('[INFO] Performing data cleaning (tokenization, stopwords, stemming, etc.)...')
-    #info = clean(info)
+    if os.path.isfile(os.path.join(path_to_data, 'training_info_clean.csv')):
+        info = pd.read_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', header=0)
+    else:
+        info = clean(info)
+        info.to_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', index = False)
 
     print('[INFO] Splitting data...')
     train_test = train_test_split(data, info, test_size = 0.1, random_state = None, cv = cv)
@@ -43,21 +47,35 @@ def test(method, cv = None):
 def submission(method):
     path_to_data = 'Data/'
 
+    print('[INFO] Data loading...')
     training = pd.read_csv(os.path.join(path_to_data + 'training_set.csv'), sep=',', header=0)
     training_info = pd.read_csv(os.path.join(path_to_data + 'training_info.csv'), sep=',', header=0)
-    X_train, y_train = make_X_y(training, training_info)
 
+    print('[INFO] Performing data cleaning (tokenization, stopwords, stemming, etc.)...')
+    if os.path.isfile(os.path.join(path_to_data, 'training_info_clean.csv')):
+        training_info = pd.read_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', header=0)
+    else:
+        training_info = clean(training_info)
+        training_info.to_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', index = False)
+
+    print('[INFO] Data loading...')
     test = pd.read_csv(os.path.join(path_to_data + 'test_set.csv'), sep=',', header=0)
     test_info = pd.read_csv(os.path.join(path_to_data + 'test_info.csv'), sep=',', header=0)
-    X_test, _ = make_X_y(test, test_info)
 
-    X_train = clean(X_train)
-    X_test = clean(X_test)
+    print('[INFO] Performing data cleaning (tokenization, stopwords, stemming, etc.)...')
+    if os.path.isfile(os.path.join(path_to_data, 'test_info_clean.csv')):
+        test_info = pd.read_csv(os.path.join(path_to_data + 'test_info_clean.csv'), sep=',', header=0)
+    else:
+        test_info = clean(test_info)
+        test_info.to_csv(os.path.join(path_to_data + 'test_info_clean.csv'), sep=',', index = False)
+
+    X_train, y_train = make_X_y(training, training_info)
+    X_test, _ = make_X_y(test, test_info)
 
     y_pred = method(X_train, y_train, X_test)
 
     write_to_file(y_pred, os.path.join(path_to_data, method.__name__ + '.csv'))
 
 if __name__ == '__main__':
-    test(twidf, cv = 5)
+    test(tfidf, cv = 5)
     #submission(tfidf_centroid)

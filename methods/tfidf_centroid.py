@@ -75,8 +75,6 @@ def tfidf_centroid_score(X_train, y_train, X_test):
     return scores
 
 def tfidf_centroid(X_train, y_train, X_test):
-    X_train = clean(X_train)
-    X_test = clean(X_test)
     scores = tfidf_centroid_score(X_train, y_train, X_test)
     scores.set_index(['mid', 'recipients'], inplace = True)
     scores = scores['score']
