@@ -2,23 +2,28 @@ from __future__ import print_function
 import os
 import numpy as np
 import pandas as pd
-from helpers.misc import train_test_split, score, make_X_y, write_to_file, clean
+from helpers.misc import train_test_split, score, make_X_y, write_to_file
+from helpers.clean import clean
 from methods.baseline import baseline
 from methods.tfidf_centroid import tfidf_centroid
 from methods.twidf_plus_frequency import twidf_plus_frequency
 from methods.tfidf import tfidf
+from methods.twidf import twidf
 from methods.baseline_tfidf import baseline_tfidf
 
 
 def test(method, cv = None):
     path_to_data = 'Data/'
 
+    print('[INFO] Data loading...')
     data = pd.read_csv(os.path.join(path_to_data + 'training_set.csv'), sep=',', header=0)
 
     info = pd.read_csv(os.path.join(path_to_data + 'training_info.csv'), sep=',', header=0)
 
-    info = clean(info)
+    print('[INFO] Performing data cleaning (tokenization, stopwords, stemming, etc.)...')
+    #info = clean(info)
 
+    print('[INFO] Splitting data...')
     train_test = train_test_split(data, info, test_size = 0.1, random_state = None, cv = cv)
 
     scores = np.empty(cv)
@@ -54,5 +59,5 @@ def submission(method):
     write_to_file(y_pred, os.path.join(path_to_data, method.__name__ + '.csv'))
 
 if __name__ == '__main__':
-    test(twidf_plus_frequency, cv = 5)
+    test(twidf, cv = 5)
     #submission(tfidf_centroid)

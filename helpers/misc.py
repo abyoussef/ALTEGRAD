@@ -1,18 +1,15 @@
 from __future__ import print_function
 
-import re
-import string
-import nltk
-import pandas as pd
-from nltk import pos_tag
-from nltk.corpus import stopwords
-from pandas import Series, DataFrame
-from sklearn.model_selection import ShuffleSplit
-from sklearn.model_selection import train_test_split as sk_train_test_split
-from average_precision import mapk
-import itertools
 import copy
+import itertools
+
 import igraph
+import pandas as pd
+from pandas import Series
+from sklearn.model_selection import ShuffleSplit
+
+from average_precision import mapk
+
 
 def split_cell(df, col1, col2, dtype = int):
     """Helper function to break a cell consisting multiple entries into several rows."""
@@ -86,54 +83,6 @@ def write_to_file(y_pred, filename):
         for _, row in y_pred.iterrows():
             f.write(str(row['mid']) + ',' + row['recipients'] + '\n')
 
-def clean_text_simple(text, remove_stopwords=True, pos_filtering=True, stemming=True):
-
-    original_text = text
-    punct = string.punctuation.replace('-', '')
-    # convert to lower case
-    text = text.lower()
-    # remove punctuation (preserving intra-word dashes)
-    cond = '[' + re.escape(punct) + ']+'
-    text = re.sub(cond, ' ', text)
-    text = re.sub('(\s+-|-\s+)', ' ', text)
-    # strip extra white space
-    text = re.sub('-{2,}', ' ', text)
-    text = re.sub('\s+', ' ', text)
-    # strip leading and trailing white space
-    text = text.strip()
-    # tokenize (split based on whitespace)
-    tokens = text.split(' ')
-    tokens = filter(lambda x: len(x) > 0, tokens)
-    if pos_filtering == True and len(tokens) > 0:
-        # apply POS-tagging
-        tagged_tokens = pos_tag(tokens)
-        # retain only nouns and adjectives
-        tokens_keep = []
-        for i in range(len(tagged_tokens)):
-            item = tagged_tokens[i]
-            if (
-                item[1] == 'NN' or
-                item[1] == 'NNS' or
-                item[1] == 'NNP' or
-                item[1] == 'NNPS' or
-                item[1] == 'JJ' or
-                item[1] == 'JJS' or
-                item[1] == 'JJR'
-                ):
-                    tokens_keep.append(item[0])
-        tokens = tokens_keep
-    if remove_stopwords:
-        stpwds = set(stopwords.words('english'))
-        # remove stopwords
-        tokens = [token for token in tokens if token not in stpwds]
-    if stemming:
-        stemmer = nltk.stem.PorterStemmer()
-        # apply Porter's stemmer
-        tokens_stemmed = list()
-        for token in tokens:
-            tokens_stemmed.append(stemmer.stem(token))
-        tokens = tokens_stemmed
-    return tokens
 
 def terms_to_graph(terms, w):
     # This function returns a directed, weighted igraph from a list of terms (the tokens from the pre-processed text) e.g., ['quick','brown','fox']
@@ -219,12 +168,6 @@ def unweighted_k_core(g):
 
     return cores_g
 
-def clean(X, col = 'body', cleaner = clean_text_simple, join = True):
-    X_cleaned = X.copy()
-    X_cleaned[col] = X_cleaned[col].apply(cleaner)
-    if join:
-        X_cleaned[col] = X_cleaned[col].apply(lambda x: ' '.join(x))
-    return X_cleaned
 
 def compute_node_centrality(graph):
     # degree

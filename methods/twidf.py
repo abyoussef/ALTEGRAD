@@ -60,10 +60,12 @@ def twidf_score(X_train, y_train, X_test):
         scores = pd.concat([scores, tmp]).reset_index(drop = True)
     return scores
 
-def tfidf(X_train, y_train, X_test):
+def twidf(X_train, y_train, X_test):
     X_train_cleaned, y_train_cleaned = remove_empty_graphs(X_train, y_train)
     X_test_cleaned = remove_empty_graphs(X_test)
 
     scores = twidf_score(X_train_cleaned, y_train_cleaned, X_test_cleaned)
     y_pred = top_k_score(scores)
+    y_pred = pd.merge(left = X_test, right = y_pred, on = 'mid', how = 'left')[['mid', 'recipients']]
+    y_pred.fillna('', inplace = True)
     return y_pred

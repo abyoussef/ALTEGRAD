@@ -3,7 +3,9 @@ import pandas as pd
 from pandas import Series, DataFrame
 from sklearn.feature_extraction.text import TfidfTransformer
 from scipy.sparse import csr_matrix, vstack
-from helpers.misc import clean, terms_to_graph, compute_node_centrality
+from helpers.misc import terms_to_graph, compute_node_centrality
+from helpers.clean import clean
+
 
 class TwidfVectorizer():
     def __init__(self, centrality = 'degree', b = 0.03):
@@ -11,8 +13,8 @@ class TwidfVectorizer():
         self.b = b
 
     def df2graph(self, X, w = 4):
-        graphs = X.apply(lambda x: terms_to_graph(x, w))
-        return graphs
+        for _, g in X.iteritems():
+            yield terms_to_graph(g, w)
 
     def process_doc(self, g):
         metrics = compute_node_centrality(g)
@@ -35,7 +37,7 @@ class TwidfVectorizer():
         graphs = self.df2graph(X)
 
         tw = []
-        for _, g in graphs.iteritems():
+        for g in graphs:
             tw.append(self.process_doc(g))
         tw = vstack(tw)
 

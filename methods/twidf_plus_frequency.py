@@ -4,7 +4,8 @@ from pandas import Series, DataFrame
 from scipy.sparse import csr_matrix, vstack
 from sklearn.metrics.pairwise import cosine_similarity
 
-from helpers.misc import split_cell, clean
+from helpers.misc import split_cell
+from helpers.clean import clean
 from helpers.gow import TwidfVectorizer
 from methods.baseline import freq
 from methods.twidf_centroid import remove_empty_graphs
@@ -35,8 +36,8 @@ def twidf_plus_frequency(X_train, y_train, X_test, verbose=False):
         clf = TwidfVectorizer()
         twidf = clf.fit_transform(emails['body'])
         ## L-1 normalization
-        twidf /= (twidf.sum(axis = 1) + 1e-15)
-        twidf = csr_matrix(twidf)
+        #twidf /= (twidf.sum(axis = 1) + 1e-15)
+        #twidf = csr_matrix(twidf)
 
         # Map the recipient to a TF-IDF vector
         df = DataFrame()
