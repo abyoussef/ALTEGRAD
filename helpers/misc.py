@@ -62,7 +62,7 @@ def make_X_y(data, info):
     try:
         X = data.drop('recipients', axis=1)
         y = data[['mid', 'recipients']].copy()
-        y['recipients'] = y['recipients'].apply(lambda x: ' '.join(filter(lambda y: '@' in y, x.split(' '))))
+        y['recipients'] = y['recipients'].apply(lambda x: ' '.join(list(set(filter(lambda y: '@' in y, x.split(' '))))))
     except ValueError:
         X = data.copy()
         y = None
