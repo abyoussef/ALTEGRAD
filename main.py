@@ -53,4 +53,4 @@ def submission(method):
 
 if __name__ == '__main__':
     #test(tfidf, cv = 5)
-    submission(tfidf_centroid)
+    submission(tfidf)

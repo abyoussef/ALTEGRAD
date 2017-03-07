@@ -23,7 +23,6 @@ class TwidfVectorizer():
         return csr_matrix(df[self.centrality])
 
     def fit(self, X):
-        X = X.copy()
         X = X.apply(lambda x: x.split(' '))
         self.vocabulary = list(set(list(itertools.chain.from_iterable(X.values))))
         self.df_ref = DataFrame(self.vocabulary, columns = ['name'])
@@ -31,7 +30,6 @@ class TwidfVectorizer():
         self._is_fitted = True
 
     def transform(self, X):
-        X = X.copy()
         X = X.apply(lambda x: x.split(' '))
 
         graphs = self.df2graph(X)
