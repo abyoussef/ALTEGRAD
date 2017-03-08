@@ -10,6 +10,7 @@ from methods.twidf_plus_frequency import twidf_plus_frequency
 from methods.tfidf import tfidf
 from methods.twidf import twidf
 from methods.baseline_tfidf import baseline_tfidf
+from methods.multilabel_classification import multilabel_classification
 
 
 def test(method, cv = None):
@@ -69,13 +70,18 @@ def submission(method):
         test_info = clean(test_info)
         test_info.to_csv(os.path.join(path_to_data + 'test_info_clean.csv'), sep=',', index = False)
 
+    print('[INFO] Making training and test set...')
     X_train, y_train = make_X_y(training, training_info)
     X_test, _ = make_X_y(test, test_info)
 
+    print('[INFO] Method %s' % (method.__name__))
     y_pred = method(X_train, y_train, X_test)
 
+    print('[INFO] Writing to output file...')
     write_to_file(y_pred, os.path.join(path_to_data, method.__name__ + '.csv'))
 
+    print('[INFO] Done!')
+
 if __name__ == '__main__':
-    test(tfidf, cv = 5)
-    #submission(tfidf_centroid)
+    #test(tfidf, cv = 5)
+    submission(multilabel_classification)
