@@ -8,7 +8,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from helpers.misc import split_cell
 from helpers.clean import clean
 from helpers.gow import TwidfVectorizer
-from methods.baseline import freq
 
 def remove_empty_graphs(df, col = 'body', w = 4):
     df = df.copy()

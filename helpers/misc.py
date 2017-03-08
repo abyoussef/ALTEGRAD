@@ -197,3 +197,24 @@ def top_k_score(scores):
     y_pred = y_pred.reset_index().drop('score', axis=1)
     y_pred = y_pred.groupby('mid')['recipients'].apply(lambda x: ' '.join(x)).reset_index()
     return y_pred
+
+
+def binarize_recipients(recipients):
+    recipients = split_cell(recipients, 'mid', 'recipients', str)
+    recipients['is_recipient'] = 1
+    recipients = recipients.pivot('mid', 'recipients', 'is_recipient').fillna(0)
+    return recipients
+
+
+def remove_empty_graphs(X, y = None, col ='body', w = 4):
+    if y is not None:
+        X = pd.merge(left = X, right = y, on = 'mid', how = 'inner')
+    else:
+        X = X.copy()
+    X[col] = X[col].apply(lambda x: x.split(' '))
+    X = X[X[col].apply(lambda x: len(set(x))) >= 2].reset_index(drop = True)
+    X = X[X[col].apply(len) >= w].reset_index(drop = True)
+    X[col] = X[col].apply(lambda x: ' '.join(x))
+    if y is not None:
+        return X.drop('recipients', axis = 1), X[['mid', 'recipients']]
+    return X

@@ -4,14 +4,9 @@ import numpy as np
 import pandas as pd
 from helpers.misc import train_test_split, score, make_X_y, write_to_file
 from helpers.clean import clean
-from methods.baseline import baseline
-from methods.tfidf_centroid import tfidf_centroid
-from methods.twidf_plus_frequency import twidf_plus_frequency
-from methods.tfidf import tfidf
-from methods.twidf import twidf
-from methods.baseline_tfidf import baseline_tfidf
-from methods.multilabel_classification import multilabel_classification
+from methods.method import multilabel_classification, baseline_tfidf, baseline, tfidf_centroid, twidf, tfidf
 
+#TODO: a generic method which takes method's name(s) as input and manipulate scores
 
 def test(method, cv = None):
     path_to_data = 'Data/'
@@ -83,5 +78,5 @@ def submission(method):
     print('[INFO] Done!')
 
 if __name__ == '__main__':
-    #test(tfidf, cv = 5)
-    submission(multilabel_classification)
+    test(multilabel_classification, cv = 5)
+    #submission(multilabel_classification)

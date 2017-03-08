@@ -4,12 +4,10 @@ from pandas import Series, DataFrame
 from scipy.sparse import csr_matrix, vstack
 from sklearn.metrics.pairwise import cosine_similarity
 
-from helpers.misc import split_cell
+from helpers.misc import split_cell, remove_empty_graphs
 from helpers.clean import clean
 from helpers.gow import TwidfVectorizer
-from methods.baseline import freq
-from methods.twidf_centroid import remove_empty_graphs
-
+from helpers.misc import remove_empty_graphs
 
 def twidf_plus_frequency(X_train, y_train, X_test, verbose=False):
     # Data frame containing mid and recipients
