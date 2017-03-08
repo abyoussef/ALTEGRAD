@@ -21,6 +21,7 @@ def test(method, cv = None):
         info = pd.read_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', header=0)
     else:
         info = clean(info)
+        info['body'].fillna('', inplace = True)
         info.to_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', index = False)
 
     print('[INFO] Splitting data...')
@@ -52,6 +53,7 @@ def submission(method):
         training_info = pd.read_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', header=0)
     else:
         training_info = clean(training_info)
+        training_info['body'].fillna('', inplace = True)
         training_info.to_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', index = False)
 
     print('[INFO] Data loading...')
@@ -63,6 +65,7 @@ def submission(method):
         test_info = pd.read_csv(os.path.join(path_to_data + 'test_info_clean.csv'), sep=',', header=0)
     else:
         test_info = clean(test_info)
+        test_info['body'].fillna('', inplace = True)
         test_info.to_csv(os.path.join(path_to_data + 'test_info_clean.csv'), sep=',', index = False)
 
     print('[INFO] Making training and test set...')

@@ -24,7 +24,7 @@ class TwidfVectorizer():
         df.fillna(0, inplace = True)
         return csr_matrix(df[self.centrality])
 
-    def fit(self, X):
+    def fit(self, X, y = None):
         X = X.apply(lambda x: x.split(' '))
         self.vocabulary = list(set(list(itertools.chain.from_iterable(X.values))))
         self.df_ref = DataFrame(self.vocabulary, columns = ['name'])
@@ -49,6 +49,6 @@ class TwidfVectorizer():
         clf = TfidfTransformer()
         return clf.fit_transform(tw)
 
-    def fit_transform(self, X):
+    def fit_transform(self, X, y = None):
         self.fit(X)
         return self.transform(X)
