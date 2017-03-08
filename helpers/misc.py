@@ -20,40 +20,30 @@ def split_cell(df, col1, col2, dtype = int):
 
 def train_test_split(data, info, **args):
     """Split data and info into training set and test set."""
-    cv = args.get('cv', None)
-    if cv is None:
-        cv = 1
-    random_state = args.get('random_state', None)
-    if cv > 1:
-        rs = ShuffleSplit(n_splits = cv, test_size = 1.0/cv, random_state = random_state)
-    else:
-        rs = ShuffleSplit(n_splits = 1, test_size = 0.1, random_state = random_state)
-    indices = data['mids'].apply(lambda x: list(rs.split(x.split(' '))))
-    train_test = []
-    for i in xrange(cv):
-        train = data.copy()
-        test = data.copy()
-        train['mids'] = train['mids'].apply(lambda x: x.split(' '))
-        test['mids'] = test['mids'].apply(lambda x: x.split(' '))
+    test_size = args.get('test_size', 0.1)
 
-        train['indices'] = indices.apply(lambda x: x[i][0])
-        test['indices'] = indices.apply(lambda x: x[i][1])
+    data = split_cell(data, 'sender', 'mids').rename(columns = {'mids': 'mid'})
+    data = pd.merge(left = data, right = info[['mid', 'date']], on = 'mid', how = 'inner')
+    data.sort_values(['sender', 'date'], inplace = True)
+    data['mid'] = data['mid'].apply(str)
+    data.rename(columns = {'mid': 'mids'}, inplace = True)
 
-        train['tmp'] = train.apply(lambda x: map(lambda y: x['mids'][y], x['indices']), axis = 1)
-        test['tmp'] = test.apply(lambda x: map(lambda y: x['mids'][y], x['indices']), axis = 1)
+    data = data.groupby('sender')['mids'].apply(lambda x: ' '.join(x)).reset_index()
 
-        train.drop(['mids', 'indices'], axis = 1, inplace = True)
-        test.drop(['mids', 'indices'], axis = 1, inplace = True)
+    data['mids'] = data['mids'].apply(lambda x: x.split(' '))
+    data['mids_train'] = data['mids'].apply(lambda x: x[:int(len(x)*(1-test_size))])
+    data['mids_test'] = data['mids'].apply(lambda x: x[int(len(x)*(1-test_size)):])
 
-        train.rename(columns={'tmp': 'mids'}, inplace = True)
-        test.rename(columns={'tmp': 'mids'}, inplace = True)
+    train = data.drop(['mids', 'mids_test'], axis = 1)
+    train.rename(columns = {'mids_train': 'mids'}, inplace = True)
+    test = data.drop(['mids', 'mids_train'], axis = 1)
+    test.rename(columns = {'mids_test': 'mids'}, inplace = True)
 
-        train['mids'] = train['mids'].apply(lambda x: ' '.join(x))
-        test['mids'] = test['mids'].apply(lambda x: ' '.join(x))
-        X_train, y_train = make_X_y(train, info)
-        X_test, y_test = make_X_y(test, info)
-        train_test.append((X_train, y_train, X_test, y_test))
-    return train_test
+    train['mids'] = train['mids'].apply(lambda x: ' '.join(x))
+    test['mids'] = test['mids'].apply(lambda x: ' '.join(x))
+    X_train, y_train = make_X_y(train, info)
+    X_test, y_test = make_X_y(test, info)
+    return X_train, y_train, X_test, y_test
 
 def make_X_y(data, info):
     data = split_cell(data, 'sender', 'mids')
@@ -211,6 +201,7 @@ def remove_empty_graphs(X, y = None, col ='body', w = 4):
         X = pd.merge(left = X, right = y, on = 'mid', how = 'inner')
     else:
         X = X.copy()
+    X[col].fillna('', inplace = True)
     X[col] = X[col].apply(lambda x: x.split(' '))
     X = X[X[col].apply(lambda x: len(set(x))) >= 2].reset_index(drop = True)
     X = X[X[col].apply(len) >= w].reset_index(drop = True)

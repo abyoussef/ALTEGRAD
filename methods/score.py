@@ -13,7 +13,7 @@ from helpers.misc import split_cell, binarize_recipients
 
 def multilabel_classification_score(X_train, y_train, X_test):
     classifier = Pipeline([
-        ('tfidf', TfidfVectorizer()),
+        ('tfidf', TwidfVectorizer()),
         ('clf', OneVsRestClassifier(RandomForestClassifier()))])
     scores = DataFrame()
     for sender, emails in X_train.groupby('sender'):
