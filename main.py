@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from helpers.misc import train_test_split, score, make_X_y, write_to_file
 from helpers.clean import clean
-from methods.method import multilabel_classification, baseline_tfidf, baseline, tfidf_centroid, twidf, tfidf
+from methods.method import multilabel_classification, baseline_tfidf, baseline, tfidf_centroid, twidf, tfidf, word2vec
 
 #TODO: a generic method which takes method's name(s) as input and manipulate scores
 
@@ -36,7 +36,7 @@ def test(method, test_size = 0.4):
 
     print('[INFO] Score', score(y_test, y_pred))
 
-def submission(method):
+def submission(method, clean_data = True):
     path_to_data = 'Data/'
 
     print('[INFO] Data loading...')
@@ -44,26 +44,28 @@ def submission(method):
     training_info = pd.read_csv(os.path.join(path_to_data + 'training_info.csv'), sep=',', header=0)
     training_info['date'] = training_info['date'].apply(lambda x: re.sub('^000([1-9])', '200\1', x))
 
-    print('[INFO] Performing data cleaning (tokenization, stopwords, stemming, etc.)...')
-    if os.path.isfile(os.path.join(path_to_data, 'training_info_clean.csv')):
-        training_info = pd.read_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', header=0)
-        training_info['body'].fillna('', inplace = True)
-    else:
-        training_info = clean(training_info)
-        training_info.to_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', index = False)
+    if clean_data:
+        print('[INFO] Performing data cleaning (tokenization, stopwords, stemming, etc.)...')
+        if os.path.isfile(os.path.join(path_to_data, 'training_info_clean.csv')):
+            training_info = pd.read_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', header=0)
+            training_info['body'].fillna('', inplace = True)
+        else:
+            training_info = clean(training_info)
+            training_info.to_csv(os.path.join(path_to_data + 'training_info_clean.csv'), sep=',', index = False)
 
     print('[INFO] Data loading...')
     test = pd.read_csv(os.path.join(path_to_data + 'test_set.csv'), sep=',', header=0)
     test_info = pd.read_csv(os.path.join(path_to_data + 'test_info.csv'), sep=',', header=0)
     test_info['date'] = test_info['date'].apply(lambda x: re.sub('^000([1-9])', '200\1', x))
 
-    print('[INFO] Performing data cleaning (tokenization, stopwords, stemming, etc.)...')
-    if os.path.isfile(os.path.join(path_to_data, 'test_info_clean.csv')):
-        test_info = pd.read_csv(os.path.join(path_to_data + 'test_info_clean.csv'), sep=',', header=0)
-        test_info['body'].fillna('', inplace = True)
-    else:
-        test_info = clean(test_info)
-        test_info.to_csv(os.path.join(path_to_data + 'test_info_clean.csv'), sep=',', index = False)
+    if clean_data:
+        print('[INFO] Performing data cleaning (tokenization, stopwords, stemming, etc.)...')
+        if os.path.isfile(os.path.join(path_to_data, 'test_info_clean.csv')):
+            test_info = pd.read_csv(os.path.join(path_to_data + 'test_info_clean.csv'), sep=',', header=0)
+            test_info['body'].fillna('', inplace = True)
+        else:
+            test_info = clean(test_info)
+            test_info.to_csv(os.path.join(path_to_data + 'test_info_clean.csv'), sep=',', index = False)
 
     print('[INFO] Making training and test set...')
     X_train, y_train = make_X_y(training, training_info)
@@ -78,5 +80,5 @@ def submission(method):
     print('[INFO] Done!')
 
 if __name__ == '__main__':
-    test(baseline)
-    #submission(multilabel_classification)
+    #test(baseline)
+    submission(multilabel_classification)
