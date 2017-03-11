@@ -6,6 +6,7 @@ import pandas as pd
 from helpers.misc import train_test_split, score, make_X_y, write_to_file
 from helpers.clean import clean
 from methods.method import multilabel_classification, baseline_tfidf, baseline, tfidf_centroid, twidf, tfidf
+from methods.graph_content import graph_content
 
 #TODO: a generic method which takes method's name(s) as input and manipulate scores
 
@@ -78,5 +79,5 @@ def submission(method):
     print('[INFO] Done!')
 
 if __name__ == '__main__':
-    test(baseline)
-    #submission(multilabel_classification)
+    #test(baseline)
+    submission(graph_content)

@@ -9,7 +9,7 @@ from helpers.clean import clean
 from helpers.gow import TwidfVectorizer
 from helpers.misc import remove_empty_graphs
 
-def twidf_plus_frequency(X_train, y_train, X_test, verbose=False):
+def twidf_plus_frequency(X_train, y_train, X_test, verbose=True):
     # Data frame containing mid and recipients
     mid_rec = split_cell(y_train, 'mid', 'recipients', str)
     # Data frame containing sender, mid and recipients
@@ -72,7 +72,8 @@ def twidf_plus_frequency(X_train, y_train, X_test, verbose=False):
         scores_freq = scores_freq / (np.sum(scores_freq, axis=1, dtype=float)[:, np.newaxis]+1e-15)
 
         # Add both
-        scores = scores_sim + scores_freq
+        # (or multiply)
+        scores = scores_sim * scores_freq
 
         # Get the top 10 recipients by cosine simulatiry
         top10 = np.fliplr(np.argsort(scores, axis = 1))[:, :10]
