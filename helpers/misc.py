@@ -180,12 +180,15 @@ def compute_node_centrality(graph):
 
 
 def top_k_score(scores):
-    scores = scores.set_index(['mid', 'recipients'])
-    scores = scores['score']
-    g = scores.groupby(level=0, group_keys=False)
-    y_pred = g.nlargest(10)
-    y_pred = y_pred.reset_index().drop('score', axis=1)
-    y_pred = y_pred.groupby('mid')['recipients'].apply(lambda x: ' '.join(x)).reset_index()
+    #scores = scores.set_index(['mid', 'recipients'])
+    #scores = scores['score']
+    #g = scores.groupby(level=0, group_keys=False)
+    #y_pred = g.nlargest(10)
+    #y_pred = y_pred.reset_index().drop('score', axis=1)
+    #y_pred = y_pred.groupby('mid')['recipients'].apply(lambda x: ' '.join(x)).reset_index()
+    scores = scores.sort_values(['mid', 'score'], ascending = [True, False])
+    scores = scores.groupby('mid').head(10).reset_index()
+    y_pred = scores.groupby('mid')['recipients'].apply(lambda x: ' '.join(x)).reset_index()
     return y_pred
 
 

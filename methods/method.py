@@ -1,6 +1,7 @@
 import pandas as pd
 from helpers.misc import top_k_score, remove_empty_graphs
-from methods.score import baseline_score, multilabel_classification_score, tfidf_score, twidf_score, tfidf_centroid_score
+from methods.score import baseline_score, multilabel_classification_score, tfidf_score, twidf_score
+from methods.score import tfidf_centroid_score, word2vec_score
 
 def baseline(X_train, y_train, X_test):
     scores = baseline_score(X_train, y_train, X_test)
@@ -71,6 +72,11 @@ def multilabel_classification(X_train, y_train, X_test):
     y_pred = scores[['mid', 'recipients']]
     y_pred = y_pred.groupby('mid').head(10).reset_index(drop = True)
     y_pred = y_pred.groupby(['mid'])['recipients'].apply(lambda x: ' '.join(x)).reset_index()
+    return y_pred
+
+def word2vec(X_train, y_train, X_test):
+    scores = word2vec_score(X_train, y_train, X_test)
+    y_pred = top_k_score(scores)
     return y_pred
 
 if __name__ == '__main__':
