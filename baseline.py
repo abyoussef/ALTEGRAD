@@ -95,7 +95,7 @@ for index, row in test.iterrows():
 # write predictions in proper format for Kaggle #                           
 #################################################
 
-path_to_results = 'Data/'
+path_to_results = 'results/'
 
 with open(path_to_results + 'predictions_random.txt', 'wb') as my_file:
     my_file.write('mid,recipients' + '\n')

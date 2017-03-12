@@ -11,7 +11,7 @@ from methods.graph_content import graph_content
 #TODO: a generic method which takes method's name(s) as input and manipulate scores
 
 def test(method, test_size = 0.4):
-    path_to_data = 'Data/'
+    path_to_data = 'data/'
 
     print('[INFO] Data loading...')
     data = pd.read_csv(os.path.join(path_to_data + 'training_set.csv'), sep=',', header=0)
@@ -38,7 +38,8 @@ def test(method, test_size = 0.4):
     print('[INFO] Score', score(y_test, y_pred))
 
 def submission(method):
-    path_to_data = 'Data/'
+    path_to_data = 'data/'
+    path_to_results = 'results/'
 
     print('[INFO] Data loading...')
     training = pd.read_csv(os.path.join(path_to_data + 'training_set.csv'), sep=',', header=0)
@@ -74,7 +75,7 @@ def submission(method):
     y_pred = method(X_train, y_train, X_test)
 
     print('[INFO] Writing to output file...')
-    write_to_file(y_pred, os.path.join(path_to_data, method.__name__ + '.csv'))
+    write_to_file(y_pred, os.path.join(path_to_results, method.__name__ + '.csv'))
 
     print('[INFO] Done!')
 
