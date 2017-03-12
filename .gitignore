@@ -29,8 +29,8 @@
 *.run.xml
 
 ## Data files not uploaded 
-Data/*.txt
-Data/*.csv
+data/*.txt
+data/*.csv
 
 ## For jupyter Notebook checkpoints 
 *checkpoint* 
