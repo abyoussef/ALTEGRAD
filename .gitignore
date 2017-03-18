@@ -10,7 +10,8 @@
 *.fot
 *.cb
 *.cb2
-
+*.swp
+*.DS_Store
 ## Intermediate documents:
 *.dvi
 *-converted-to.*

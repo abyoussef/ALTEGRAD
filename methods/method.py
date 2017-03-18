@@ -23,6 +23,8 @@ def tfidf_centroid(X_train, y_train, X_test):
     y_pred = y_pred.groupby('mid')['recipients'].apply(lambda x: ' '.join(x)).reset_index()
     return y_pred
 
+
+
 def baseline_tfidf(X_train, y_train, X_test):
     """Use baseline method but sort with respect to TF-IDF similarity."""
     scores_freq = baseline_score(X_train.copy(), y_train.copy(), X_test.copy())
