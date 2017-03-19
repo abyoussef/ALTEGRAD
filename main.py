@@ -8,7 +8,7 @@ from helpers.clean import clean
 from methods.method import multilabel_classification, baseline_tfidf, baseline, tfidf_centroid, twidf, tfidf
 from methods.graph_content import graph_content
 
-#TODO: a generic method which takes method's name(s) as input and manipulate scores
+
 
 def test(method, test_size = 0.4):
     path_to_data = 'data/'
@@ -81,4 +81,4 @@ def submission(method):
 
 if __name__ == '__main__':
     #test(baseline)
-    submission(graph_content)
+    submission(multilabel_classification)
