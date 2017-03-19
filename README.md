@@ -7,7 +7,7 @@ Assignment for the course Learning for text and graph data
 
 ### Deadlines : 
 * Competion Deadline : 3/12/2017 11:59 PM UTC  = Lundi 13 mars, 1am 
-* Report : Thursday, March 16 (midnight Paris time) 
+* Report : Sunday, March 19 (midnight Paris time) 
 
 ### Guidelines for the report : 
 Some important points about the report:
