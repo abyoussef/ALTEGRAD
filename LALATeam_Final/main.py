@@ -88,5 +88,5 @@ def submission(method):
 if __name__ == '__main__':
     ## Test method on training set
     #test(baseline)
-    ## Prediction based on the method
-    submission(twidf)
+    ## Prediction based on a chosen method
+    submission(tfidf_centroid)
